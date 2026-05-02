@@ -1,0 +1,103 @@
+# Geo-OpenClaw 技能注册表
+# 每个技能包含: 名称、描述、输入输出签名、依赖项、示例用法
+
+skills:
+  - name: buffer_analysis
+    category: vector_analysis
+    description: "对矢量要素创建缓冲区"
+    inputs:
+      source: "矢量文件路径 (shp/gpkg/geojson)"
+    params:
+      distance: "缓冲距离 (float)"
+      unit: "单位: meters/degrees/km (默认 meters)"
+      segments: "分段数 (默认 30)"
+      dissolve: "是否融合 (默认 false)"
+    outputs:
+      buffer: "缓冲后的矢量文件 (.gpkg)"
+    dependencies: ["qgis.core", "qgis.analysis"]
+    estimated_token_cost: 3500
+
+  - name: reprojection
+    category: coordinate
+    description: "矢量或栅格的重投影"
+    inputs:
+      source: "输入文件路径"
+    params:
+      target_crs: "目标坐标系 EPSG 代码 (默认 EPSG:3857)"
+      resampling: "重采样方法: nearest/bilinear/cubic"
+    outputs:
+      reprojected: "重投影后的文件"
+    dependencies: ["qgis.core", "osgeo.gdal"]
+    estimated_token_cost: 2500
+
+  - name: raster_clip
+    category: raster_processing
+    description: "按矢量边界裁剪栅格"
+    inputs:
+      raster: "栅格文件路径 (.tif)"
+      mask: "裁剪边界矢量 (.shp/.gpkg)"
+    params:
+      crop_to_cutline: "是否精确裁剪 (默认 true)"
+    outputs:
+      clipped: "裁剪后的栅格 (.tif)"
+    dependencies: ["qgis.core", "osgeo.gdal"]
+    estimated_token_cost: 4000
+
+  - name: vector_clip
+    category: vector_processing
+    description: "按边界裁剪矢量"
+    inputs:
+      vector: "矢量文件路径"
+      mask: "裁剪边界矢量"
+    outputs:
+      clipped: "裁剪后的矢量 (.gpkg)"
+    dependencies: ["qgis.core"]
+    estimated_token_cost: 2800
+
+  - name: spatial_join
+    category: spatial_analysis
+    description: "空间连接 — 基于空间关系合并属性"
+    inputs:
+      layer_a: "目标矢量层"
+      layer_b: "连接矢量层"
+    params:
+      predicate: "空间关系: intersects/contains/within (默认 intersects)"
+      join_type: "连接类型: one-to-one/one-to-many"
+    outputs:
+      joined: "连接结果 (.gpkg)"
+    dependencies: ["qgis.core"]
+    estimated_token_cost: 5000
+
+  - name: zonal_statistics
+    category: raster_analysis
+    description: "按区域计算栅格统计值"
+    inputs:
+      raster: "栅格文件路径"
+      zones: "分区矢量文件"
+    params:
+      statistics: "统计值列表: mean/sum/min/max/stddev"
+    outputs:
+      stats: "统计结果 (.csv)"
+    dependencies: ["qgis.core", "qgis.analysis"]
+    estimated_token_cost: 4200
+
+  - name: ndvi
+    category: remote_sensing
+    description: "计算 NDVI 植被指数"
+    inputs:
+      nir_band: "近红外波段 (.tif)"
+      red_band: "红光波段 (.tif)"
+    outputs:
+      ndvi: "NDVI 栅格 (.tif)"
+    dependencies: ["osgeo.gdal", "numpy"]
+    estimated_token_cost: 3000
+
+  - name: slope_analysis
+    category: terrain_analysis
+    description: "从 DEM 计算坡度"
+    inputs:
+      dem: "数字高程模型 (.tif)"
+    outputs:
+      slope: "坡度栅格 (.tif)"
+    dependencies: ["qgis.core", "osgeo.gdal"]
+    estimated_token_cost: 3200

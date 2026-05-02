@@ -1,0 +1,39 @@
+# QGIS 多版本配置文件
+# 当 Environment Agent 自动发现失效时，会使用此文件的手动配置
+
+profiles:
+  - name: "QGIS 3.44 LTR (Windows)"
+    root: "C:/Program Files/QGIS 3.44.9"
+    python_version: "3.12"
+    env:
+      PYTHONHOME: "C:/Program Files/QGIS 3.44.9/apps/Python312"
+      PYTHONPATH: "C:/Program Files/QGIS 3.44.9/apps/qgis-ltr/python"
+      QGIS_PREFIX_PATH: "C:/Program Files/QGIS 3.44.9/apps/qgis-ltr"
+      QT_PLUGIN_PATH: "C:/Program Files/QGIS 3.44.9/apps/Qt5/plugins"
+      PROJ_DATA: "C:/Program Files/QGIS 3.44.9/share/proj"
+      GDAL_DATA: "C:/Program Files/QGIS 3.44.9/share/gdal"
+
+  - name: "QGIS 3.40 (Windows)"
+    root: "C:/Program Files/QGIS 3.40.5"
+    python_version: "3.11"
+    env:
+      PYTHONHOME: "C:/Program Files/QGIS 3.40.5/apps/Python311"
+      PYTHONPATH: "C:/Program Files/QGIS 3.40.5/apps/qgis/python"
+      QGIS_PREFIX_PATH: "C:/Program Files/QGIS 3.40.5/apps/qgis"
+      QT_PLUGIN_PATH: "C:/Program Files/QGIS 3.40.5/apps/Qt5/plugins"
+      PROJ_DATA: "C:/Program Files/QGIS 3.40.5/share/proj"
+
+  - name: "OSGeo4W (Windows)"
+    root: "C:/OSGeo4W"
+    python_version: "auto"
+    env:
+      PYTHONHOME: "C:/OSGeo4W/apps/Python312"
+      PYTHONPATH: "C:/OSGeo4W/apps/qgis-ltr/python"
+      QGIS_PREFIX_PATH: "C:/OSGeo4W/apps/qgis-ltr"
+
+# 运行时参数
+runtime:
+  memory_limit_mb: 4096
+  parallel_workers: 1
+  gdal_cache_mb: 512
+  temp_dir: "auto"  # auto = 系统临时目录

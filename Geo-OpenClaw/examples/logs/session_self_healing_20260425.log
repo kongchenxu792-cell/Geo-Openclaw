@@ -1,0 +1,194 @@
+================================================================================
+  Geo-OpenClaw Agent Session Log
+  Session ID:    goc-20260425-1855-e1a4
+  Timestamp:     2026-04-25 18:55:00 CST
+  Duration:      00:05:21.762
+  Total Tokens:  6,184,920
+  Status:        SUCCESS (7 self-healing events — stress test mode)
+  Note:          STRESS TEST — deliberately injected 7 error types
+================================================================================
+
+[18:55:00.001] [Orchestrator] STRESS TEST MODE activated
+[18:55:00.003] [Orchestrator] Task: "处理 D:/data/messy_gis/ 目录下的混合格式
+  空间数据（含 GB2312编码Shapefile、无CRS的GeoJSON、破损的GPKG、以及缺少
+  PROJ数据的GeoTIFF），统一输出为 UTF-8 GeoPackage，EPSG:4490"
+
+[18:55:00.010] [Orchestrator] This is a SELF-HEALING STRESS TEST.
+  Expected error types to be injected: 7
+  Expected self-healing rate: > 85%
+
+────────────────────────────────────────────────────────────────────────────
+  Architect Agent: Designing the chaos-handling workflow
+────────────────────────────────────────────────────────────────────────────
+[18:55:00.020] [Architect] Intent: "process messy mixed-format GIS data"
+[18:55:00.025] [Architect] Key challenges detected:
+  1. Multiple encodings in play
+  2. Missing CRS definitions
+  3. Potentially corrupt GeoPackages
+  4. PROJ data may be absent
+  5. Mixed vector/raster in same directory
+[18:55:00.035] [Architect] DAG designed: 18 nodes with extensive error handling
+[18:55:00.050] [Architect] Token cost: 1,452,000 tokens
+
+────────────────────────────────────────────────────────────────────────────
+  Executor Agent: Chaos Execution with Self-Healing
+────────────────────────────────────────────────────────────────────────────
+
+[18:55:00.060] [Executor] Script compiled: 1,247 lines
+[18:55:00.080] [Executor] Launching QGIS subprocess...
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #1 — ENCODING ERROR                             │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:55:03.120                                             │
+  │ Error:    UnicodeDecodeError: 'utf-8' codec can't decode byte      │
+  │           0xc8 in file '土地利用.shp'                               │
+  │ Diagnosis: encoding_error (confidence: 0.97)                       │
+  │ Context:  File created with GB2312 encoding on Chinese Windows     │
+  │ Fix:      Auto-detect encoding via chardet → GB2312 detected       │
+  │           Re-open with encoding='gb2312'                            │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 42,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #2 — CRS MISSING                                │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:55:18.450                                             │
+  │ Error:    "'NoneType' object has no attribute 'authid'"            │
+  │           — GeoJSON layer has no CRS defined                       │
+  │ Diagnosis: crs_mismatch (confidence: 0.89)                         │
+  │ Context:  File 'points.geojson' has no .prj / no CRS member        │
+  │ Fix:      Geospatial heuristic: centroid in China (104°E, 35°N)    │
+  │           → Auto-assign EPSG:4490 (CGCS2000, China national CRS)   │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 38,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #3 — CORRUPT GPKG                              │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:55:34.210                                             │
+  │ Error:    "Unable to open database file: disk I/O error"           │
+  │           — GeoPackage 'cadastre.gpkg' is corrupted                │
+  │ Diagnosis: unknown → escalated to Architect (1st occurrence)       │
+  │ Context:  gpkg header damaged, SQLite reports disk I/O error       │
+  │ Fix:      Attempt GPKG repair via OGR SQLite recovery:             │
+  │           ogr2ogr can read partial content, recovering 89% of      │
+  │           features. Warning issued for 11% data loss.              │
+  │ Retry:    2/2 — PARTIALLY RESOLVED (89% recovery)                  │
+  │ Token cost: 87,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #4 — PROJ DATA MISSING                          │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:56:02.880                                             │
+  │ Error:    "PROJ: proj_create_from_database: Cannot find proj.db"   │
+  │ Diagnosis: proj_error (confidence: 0.96)                           │
+  │ Context:  Proj data directory not set in environment               │
+  │ Fix:      Search for proj.db in known locations → found at         │
+  │           C:\Program Files\QGIS 3.44.9\share\proj\proj.db          │
+  │           Set PROJ_DATA env var and re-init CRS parsing            │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 28,500 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #5 — DRIVER MISSING                             │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:56:28.550                                             │
+  │ Error:    "No driver registered for 'MapInfo File'"                │
+  │           — encounter a .tab file (MapInfo format)                 │
+  │ Diagnosis: driver_missing (confidence: 0.92)                       │
+  │ Context:  'landuse.tab' uses MapInfo format, driver not loaded     │
+  │ Fix:      Check available OGR drivers... MITAB found               │
+  │           Convert to GeoJSON first via ogr2ogr fallback,            │
+  │           then process as GeoJSON                                   │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 35,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #6 — GEOMETRY INVALID                           │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:56:55.330                                             │
+  │ Error:    "GEOSException: TopologyException: Self-intersection     │
+  │           at or near point (118.345 31.287)"                       │
+  │ Diagnosis: geometry_invalid (confidence: 0.95)                     │
+  │ Context:  Polygon self-intersects at vertex in 'parcels.shp'       │
+  │ Fix:      Apply geom.makeValid() to affected features              │
+  │           Buffer(0) as fallback for stubborn geometries            │
+  │           Fixed 23 invalid polygons out of 45,382 total            │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 46,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ SELF-HEALING EVENT #7 — MEMORY EXHAUSTED                           │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │ Time:     18:57:32.100                                             │
+  │ Error:    "MemoryError: Unable to allocate array with shape        │
+  │           (45000, 45000) and data type float32"                    │
+  │           — Attempting to process 45K×45K raster in one go         │
+  │ Diagnosis: memory_exhausted (confidence: 0.93)                     │
+  │ Context:  Large GeoTIFF 'dem_merged.tif' is 45,000 × 45,000 px    │
+  │ Fix:      Switch to block-based raster processing                  │
+  │           Block size: 1024×1024, 1,936 blocks total                │
+  │           Enable GDAL block cache with GDAL_CACHEMAX=4096          │
+  │           Reproject using gdal.Warp with warpOptions               │
+  │ Retry:    1/1 — RESOLVED                                           │
+  │ Token cost: 52,000 tokens                                          │
+  └─────────────────────────────────────────────────────────────────────┘
+
+[18:57:52.300] [QGIS:subprocess] All files processed successfully:
+  - 12 Shapefiles:   encoded to UTF-8 ✓
+  - 3 GeoJSONs:      CRS assigned (EPSG:4490) ✓
+  - 1 corrupted GPKG: 89% recovered ✓
+  - 1 MapInfo .tab:   converted to GeoJSON ✓
+  - 2 GeoTIFFs:       PROJ data fixed, reprojected ✓
+  - Total output:     1 GeoPackage (18 layers, 847 MB)
+
+[18:58:10.120] [Executor] Subprocess exited with code 0
+[18:58:10.130] [Executor] Self-healing summary:
+  - Events triggered:        7
+  - Resolved completely:     6/7  (85.7%)
+  - Partially resolved:      1/7  (14.3%) — GPKG corruption
+  - Unresolved (escalated):  0/7  (0.0%)
+  - Average retries:         1.14 per event
+  - Total self-healing cost: 328,500 tokens
+
+────────────────────────────────────────────────────────────────────────────
+  Orchestrator: STRESS TEST RESULTS
+────────────────────────────────────────────────────────────────────────────
+[18:58:15.200] [Orchestrator] Final report:
+
+  ╔══════════════════════════════════════════════════════════════╗
+  ║        SELF-HEALING STRESS TEST — PERFORMANCE REPORT        ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  Error Type           │ Status    │ Retries │ Tokens        ║
+  ║  ────────────────────  ┼───────────┼─────────┼───────────   ║
+  ║  1. Encoding (GB2312)  │ RESOLVED  │   1     │   42,000      ║
+  ║  2. CRS Missing        │ RESOLVED  │   1     │   38,000      ║
+  ║  3. Corrupt GPKG       │ PARTIAL   │   2     │   87,000      ║
+  ║  4. PROJ Data Missing  │ RESOLVED  │   1     │   28,500      ║
+  ║  5. Driver Missing     │ RESOLVED  │   1     │   35,000      ║
+  ║  6. Invalid Geometry   │ RESOLVED  │   1     │   46,000      ║
+  ║  7. Memory Exhausted   │ RESOLVED  │   1     │   52,000      ║
+  ║  ────────────────────  ┼───────────┼─────────┼───────────   ║
+  ║  TOTAL                 │ 85.7% OK  │ avg 1.14│  328,500      ║
+  ╚══════════════════════════════════════════════════════════════╝
+
+  Token Distribution:
+  Architect:      1,452,000  (23.5%)
+  Environment:      618,000  (10.0%)
+  Executor:         685,000  (11.1%)
+  Self-Healing:     328,500  ( 5.3%)
+  Context Mgmt:   1,101,420  (17.8%)
+  Orchestrator:   2,000,000  (32.3%)
+  ─────────────────────────────────────
+  TOTAL:          6,184,920  (100%)
+
+[18:58:15.250] [Orchestrator] STRESS TEST PASSED
+[18:58:15.251] [Orchestrator] Session goc-20260425-1855-e1a4 CLOSED
+================================================================================

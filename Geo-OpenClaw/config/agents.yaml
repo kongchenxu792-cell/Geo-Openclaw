@@ -1,0 +1,49 @@
+# Geo-OpenClaw Agent 行为配置
+# 每个 Agent 的 LLM 参数、重试策略和技能注册
+
+architect:
+  model: "gpt-4"
+  max_tokens: 4096
+  temperature: 0.2
+  chain_of_thought: true
+  fallback_to_heuristic: true
+  skill_registry:
+    - buffer_analysis
+    - reprojection
+    - raster_clip
+    - vector_clip
+    - spatial_join
+    - zonal_statistics
+    - dissolve
+    - intersection
+    - union
+    - distance_matrix
+
+environment:
+  auto_discover: true
+  search_paths:
+    - "C:/Program Files/QGIS 3.44.9"
+    - "C:/Program Files/QGIS 3.40.5"
+    - "C:/OSGeo4W"
+    - "/usr"
+  critical_dependencies:
+    - qgis.core
+    - osgeo.gdal
+    - shapely
+    - numpy
+  optional_dependencies:
+    - geopandas
+    - rasterio
+    - fiona
+
+executor:
+  max_retries: 3
+  script_timeout_sec: 300
+  self_healing: true
+  verify_output_hashes: true
+  artifact_retention: "24h"
+
+orchestrator:
+  max_concurrent_tasks: 1
+  progress_report_interval_sec: 5
+  log_level: "INFO"

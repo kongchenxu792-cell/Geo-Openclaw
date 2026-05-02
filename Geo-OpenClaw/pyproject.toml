@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "geo-openclaw"
+version = "0.1.0"
+description = "AI Agent 驱动的 GIS 自动化处理框架 — 基于 OpenClaw 架构"
+authors = [{name = "GIS Explorer", email = "student@university.edu.cn"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: GIS",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "openai>=1.0.0",
+    "anthropic>=0.30.0",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+    "pydantic>=2.0",
+    "geopandas>=0.14",
+    "shapely>=2.0",
+]
+
+[project.optional-dependencies]
+qgis = ["qgis-core", "qgis-processing"]
+dev = ["pytest>=8.0", "pytest-cov", "ruff"]
+
+[project.scripts]
+geo-openclaw = "src.cli:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
